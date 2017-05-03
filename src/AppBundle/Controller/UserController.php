@@ -41,40 +41,40 @@ class UserController extends Controller
      */
     public function newAction(Request $request)
     {
+        $content = $request->getContent();
+        $object = json_decode($content);
+
+        $username = $object->username;
+        $password = $object->password;
+        $name = $object->name;
+
         $user = new User();
-        $form = $this->createForm('AppBundle\Form\UserType', $user);
-        $form->handleRequest($request);
+        $user->setName($name);
+        $user->setUsername($username);
+        $user->setPassword($password);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($user);
-            $em->flush();
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
 
-            return $this->redirectToRoute('user_show', array('id' => $user->getId()));
-        }
-
-        return $this->render('user/new.html.twig', array(
-            'user' => $user,
-            'form' => $form->createView(),
-        ));
+        return new Response(json_encode(['username' => $user->getUsername(),
+                                         'name' => $user->getName()]));
     }
 
     /**
      * Auth.
      *
-     * @Route("/auth", name="user_new")
+     * @Route("/auth", name="user_auth")
      * @Method({"POST"})
      */
-    public function Auth(Request $request)
+    public function authAction(Request $request)
     {
 
-      // no Angular 2
+      $content = $request->getContent();
+      $object = json_decode($content);
 
-      $data = str_replace("data : ", "", $request->getContent());
-
-      $json = json_encode($data);
-
-      var_dump($json);
+      $username = $object->username;
+      $password = $object->password;
 
       $em = $this->getDoctrine()->getManager();
 
